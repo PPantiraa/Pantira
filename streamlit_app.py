@@ -1,6 +1,7 @@
 import streamlit as st
 import openai
 import pandas as pd
+import nltk
 from nltk.corpus import wordnet
 from PyDictionary import PyDictionary
 
