@@ -1,6 +1,0 @@
-openai==0.28
-openai
-streamlit
-pandas
-wordnet
-PyDictionary
