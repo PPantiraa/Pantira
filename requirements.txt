@@ -4,3 +4,4 @@ pandas
 wordnet
 PyDictionary
 openai
+nltk
