@@ -28,54 +28,58 @@ user_input = st.text_area("Enter Thai sentences here:", "Your sentences here")
 
 # translate button after text input
 if st.button('Translate'):
-    messages_so_far = [
-        {"role": "system", "content": prompt},
-        {'role': 'user', 'content': user_input},
-    ]
-    
-    # Use openai.ChatCompletion.create instead of client.chat.completions.create
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=messages_so_far
-    )
-    
-    translated_text = response['choices'][0]['message']['content']
+    try:
+        messages_so_far = [
+            {"role": "system", "content": prompt},
+            {'role': 'user', 'content': user_input},
+        ]
 
-    st.markdown('**AI response:**')
-    st.write(translated_text)
-    
-    # Extract interesting words from the translated text
-    words = translated_text.split()
-    interesting_words = [word.strip('.,') for word in words if len(word) > 5] 
-    
-    # Create a table to display vocabulary, definition, synonym, and antonym
-    table_data = {"Vocabulary": [], "Definition": [], "Synonym": [], "Antonym": []}
-    for word in interesting_words:
-        meanings = dictionary.meaning(word)
-        if meanings:
-            definition = ', '.join(item if isinstance(item, str) else ', '.join(item) for item in meanings.values())
-            
-            # Get synonym using NLTK
-            synonyms = set()
-            for syn in wordnet.synsets(word):
-                for lemma in syn.lemmas():
-                    synonyms.add(lemma.name())
-            synonyms.discard(word)  # Remove the word itself from synonym
-            synonym_str = ', '.join(synonyms) if synonyms else '-'
+        # Use openai.ChatCompletion.create instead of client.chat.completions.create
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=messages_so_far
+        )
 
-            # Get antonym using NLTK
-            antonyms = set()
-            for syn in wordnet.synsets(word):
-                for lemma in syn.lemmas():
-                    if lemma.antonyms():
-                        antonyms.update(lemma.antonyms())
-            antonym_str = ', '.join(antonym.name() for antonym in antonyms) if antonyms else '-'
+        translated_text = response['choices'][0]['message']['content']
 
-            table_data["Vocabulary"].append(word)
-            table_data["Definition"].append(definition)
-            table_data["Synonym"].append(synonym_str)
-            table_data["Antonym"].append(antonym_str)
+        st.markdown('**AI response:**')
+        st.write(translated_text)
 
-    df = pd.DataFrame(table_data)
-    st.write("### Interesting Words and Information")
-    st.dataframe(df)
+        # Extract interesting words from the translated text
+        words = translated_text.split()
+        interesting_words = [word.strip('.,') for word in words if len(word) > 5] 
+
+        # Create a table to display vocabulary, definition, synonym, and antonym
+        table_data = {"Vocabulary": [], "Definition": [], "Synonym": [], "Antonym": []}
+        for word in interesting_words:
+            meanings = dictionary.meaning(word)
+            if meanings:
+                definition = ', '.join(item if isinstance(item, str) else ', '.join(item) for item in meanings.values())
+
+                # Get synonym using NLTK
+                synonyms = set()
+                for syn in wordnet.synsets(word):
+                    for lemma in syn.lemmas():
+                        synonyms.add(lemma.name())
+                synonyms.discard(word)  # Remove the word itself from synonym
+                synonym_str = ', '.join(synonyms) if synonyms else '-'
+
+                # Get antonym using NLTK
+                antonyms = set()
+                for syn in wordnet.synsets(word):
+                    for lemma in syn.lemmas():
+                        if lemma.antonyms():
+                            antonyms.update(lemma.antonyms())
+                antonym_str = ', '.join(antonym.name() for antonym in antonyms) if antonyms else '-'
+
+                table_data["Vocabulary"].append(word)
+                table_data["Definition"].append(definition)
+                table_data["Synonym"].append(synonym_str)
+                table_data["Antonym"].append(antonym_str)
+
+        df = pd.DataFrame(table_data)
+        st.write("### Interesting Words and Information")
+        st.dataframe(df)
+
+    except Exception as e:
+        st.error(f"Error with OpenAI: {e}")
