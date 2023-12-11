@@ -4,6 +4,8 @@ import pandas as pd
 from nltk.corpus import wordnet
 from PyDictionary import PyDictionary
 
+nltk.download('wordnet')
+
 # Get the API key from the sidebar called OpenAI API key
 user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
 
